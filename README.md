@@ -1,2 +1,2 @@
 # Credit-Card-Fraud-Detection
-This machine learning algorithm helps to decide whether a transaction is a fraud or a genuine transaction.
+This machine learning algorithm helps to decide whether a transaction is a fraud or a genuine transaction. Implemented feature selection by performing Principal Component Analysis (PCA) to choose principal components of the data that explained 99% of the variance in the data set. Applied classification algorithms like Classification decision tree, Logistic regression, KNN, SVM, Random forest to predict the class of the transaction with an accuracy range of 95% to 97%. Predicted the total amount in a transaction by implementing Regression decision tree with an accuracy of 96.13%.
