@@ -1,0 +1,127 @@
+---
+title: "Credit Card Fraud Detection"
+author: "Tejas Patil"
+date: "May 31, 2017"
+output: html_document
+---
+
+```{r cars}
+data = read.csv("creditcard.csv")
+nrow(data)
+data
+data$Class = as.factor(data$Class)
+```
+```{r}
+library(caTools)
+set.seed(1)
+split <- sample.split(data$Class, SplitRatio = 0.7)
+train <- subset(data, split == T)
+cv <- subset(data, split == F)
+
+
+# check output Class distributiion
+table(cv$Class)
+```
+```{r}
+library(rpart)
+library(rpart.plot)
+fit = rpart(Class~., method="class", data=train, minbucket=20)
+
+prp(fit)
+
+
+```
+
+```{r}
+predicted = predict(fit, cv, type="class")
+library(e1071)
+library(caret)
+confusionMatrix(cv$Class, predicted)
+```
+
+```{r}
+## Logistic Regression
+
+glm.model <- glm(Class ~ ., data = train, family = "binomial")
+glm.predict <- predict(glm.model, cv, type = "response")
+table(cv$Class, glm.predict > 0.5)
+#confusionMatrix(cv$Class, glm.predict>0.5)
+
+```
+```{r}
+## C54 Classifier
+
+library(RWeka)
+
+model_c54 = J48(Class~.,data=train) 
+pred_c54 = predict(model_c54, cv)
+table(cv$Class, pred_c54)
+confusionMatrix(cv$Class, pred_c54)
+```
+```{r}
+#SVM
+library(e1071)
+nrow(data)
+s = sample(284807,250000)
+col = c("V1","V4","Class")
+svm_train = data[s,col]
+svm_test = data[-s,col]
+
+model_svm = svm(Class~., data = svm_train, kernel = "linear", cost = .1, scale = FALSE)
+print(model_svm)
+plot(model_svm, svm_train[,col])
+
+pred_svm = predict(model_svm, svm_test[,col], type="class")
+plot(pred_svm)
+table(pred_svm, svm_test[,3])
+mean(pred_svm == svm_test[,3])
+```
+```{r}
+# Regrseeion Decision Tree
+
+rd_train = data[s,c(-1,-31)]
+rd_test = data[-s,c(-1,-31)]
+rd_train
+
+model_rd = rpart(Amount~., data = rd_train, method = "anova")
+printcp(model_rd)
+plotcp(model_rd)
+summary(model_rd)
+
+prd_rd = predict(model_rd, rd_test)
+
+plot(prd_rd)
+table(prd_rd , rd_test[,29])
+mean(prd_rd == rd_test[,29])
+
+```
+
+```{r}
+## Basics Analysis
+class_0 = data[data$Class == "0",]
+class_1 = data[data$Class == "1",]
+
+
+plot(data$Class,col = data$Class)
+```
+```{r}
+# KNN Classification
+
+
+sam_knn = sample(284807,250000)
+
+knn_train = data[sam_knn,-1]
+knn_test = data[-sam_knn,-1]
+
+knn_train_target = data[sam_knn,31]
+knn_test_target = data[-sam_knn, 31]
+
+library(class)
+model_knn = knn(train = knn_train, test = knn_test, cl = knn_train_target, k = 15)
+
+table(knn_test_target, model_knn)
+mean(model_knn == knn_test_target)
+```
+
+
+
